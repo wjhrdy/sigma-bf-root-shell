@@ -264,7 +264,27 @@ sh -c 'while :; do sh -i </dev/ttyGS0 >/dev/ttyGS0 2>&1; sleep 1; done' \
 
 ---
 
-## 7. Files
+## 7. Firmware decryption (optional, separate from the shell)
+
+The BF update package is obfuscated with a byte-wise additive stream. No secret
+key is needed: the stream is generated from the file itself, either from the
+xorshift32 seed stored in the header or from the fixed known plaintext at the
+start of segment 2 plus the linear recurrence.
+
+```sh
+python tools/decode_bf.py /path/to/BF__V104.bin -o decoded-V104
+```
+
+Details, the exact recurrence, and the vendor xorshift implementation are in
+**`docs/FIRMWARE-DECRYPTION.md`**.
+
+This repository **does not contain any Sigma firmware, decrypted images, or
+extracted firmware content**. You must supply the package yourself; decrypted
+output is Sigma code and should stay local.
+
+---
+
+## 8. Files
 
 | file | purpose |
 |---|---|
@@ -273,14 +293,22 @@ sh -c 'while :; do sh -i </dev/ttyGS0 >/dev/ttyGS0 2>&1; sleep 1; done' \
 | `build_live_payload.py` | payload builder |
 | `acm_sh.py` | serial client for the optional CDC-ACM shell |
 | `display_mmio.py` | extra: RTOS MMIO read/write and IMX410 sensor register writes |
+| `tools/decode_bf.py` | decrypt a BF update package you supply (no key) |
 | `docs/HOW-IT-WORKS.md` | the full chain and live addresses |
 | `docs/SENSOR-NOTES.md` | what the sensor access was used for (and why mirroring is not possible) |
+| `docs/FIRMWARE-DECRYPTION.md` | package layout, keystream recovery, recurrence, vendor seed |
 
 ---
 
-## 8. Scope
+## 9. Scope and content policy
 
 This is a research tool for your own camera. It runs code in the camera's RTOS
 through a stock vendor command. It does not modify firmware, does not change
 persistent camera settings, and does not survive a reboot except for the USB
 mode change described in §2.4.
+
+The repository contains only original scripts and documentation. It ships **no
+Sigma firmware files, no decrypted firmware images, and no extracted Sigma
+binaries**. Firmware analysis tools require the user to provide the package, and
+`.gitignore` excludes `*.bin`, `decoded*/` and `firmware/` so such files are not
+committed by accident.

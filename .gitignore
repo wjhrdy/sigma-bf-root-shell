@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# Never commit firmware or decrypted firmware content.
+*.bin
+decoded*/
+firmware/
